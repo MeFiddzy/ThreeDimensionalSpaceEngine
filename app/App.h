@@ -17,11 +17,25 @@ public:
 
     [[nodiscard]] double getDeltaTIme() const { return m_deltaTime; }
 private:
-    static unsigned int createShader(const std::string &vertexShader, const std::string &fragmentShader);
+    class ShaderMethods {
+    public:
+        struct ShaderSource {
+            std::string vertexSrc, fragmentSrc;
+        };
 
-    static unsigned int compileShader(const std::string &source, unsigned int type);
+        enum class ShaderType {
+            NONE = -1,
+            VERTEX = 0,
+            FRAGMENT = 1
+        };
 
-    static std::string readShader(std::string shaderName);
+        static unsigned int createShader(const std::string &vertexShader, const std::string &fragmentShader);
+
+        static unsigned int compileShader(const std::string &source, unsigned int type);
+
+        static ShaderSource parseShader(std::string path);
+
+    };
 
     GLFWwindow* m_window;
 

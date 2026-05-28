@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -48,7 +49,9 @@ App::App(std::string &&title, int width, int height) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 
-    m_shader = createShader(readShader("testing.vs"), readShader("testing.fs"));
+    auto parsedShader = parseShader("basic.shader");
+
+    m_shader = createShader(parsedShader.vertexSrc, parsedShader.fragmentSrc);
 
     glUseProgram(m_shader);
 }
@@ -75,7 +78,7 @@ App::~App() {
     glDeleteProgram(m_shader);
 }
 
-unsigned int App::createShader(const std::string &vertexShader, const std::string &fragmentShader) {
+unsigned int App::ShaderMethods::createShader(const std::string &vertexShader, const std::string &fragmentShader) {
     const unsigned int program = glCreateProgram();
 
     const unsigned int vs = compileShader(vertexShader, GL_VERTEX_SHADER);
@@ -93,7 +96,7 @@ unsigned int App::createShader(const std::string &vertexShader, const std::strin
     return program;
 }
 
-unsigned int App::compileShader(const std::string &source, unsigned int type) {
+unsigned int App::ShaderMethods::compileShader(const std::string &source, unsigned int type) {
     const unsigned int id = glCreateShader(type);
     const char *src = source.c_str();
 
@@ -120,17 +123,29 @@ unsigned int App::compileShader(const std::string &source, unsigned int type) {
     return id;
 }
 
-std::string App::readShader(std::string shaderName) {
-    std::fstream fin("shaders\\" + shaderName);
+App::ShaderMethods::ShaderSource App::ShaderMethods::parseShader(std::string path) {
+    std::fstream fin("shaders\\" + path);
+    std::string line;
 
-    std::string shaderSource;
-    std::string tmp;
+    std::stringstream ss[2];
 
-    while (std::getline(fin, tmp)) {
-        shaderSource += tmp + '\n';
+    ShaderType type = ShaderType::NONE;
+
+    while (getline(fin, line)) {
+        if (line.find("#shader") != std::string::npos) {
+            if (line.find("vertex") != std::string::npos) {
+                type = ShaderType::VERTEX;
+            }
+            else if (line.find("fragment") != std::string::npos) {
+                type = ShaderType::FRAGMENT;
+            }
+        }
+        else {
+            ss[static_cast<unsigned int>(type)] << line << '\n';
+        }
     }
 
-    return shaderSource;
+    return { ss[0].str(), ss[1].str() };
 }
 
 [[nodiscard("Need to free the memory!")]]
