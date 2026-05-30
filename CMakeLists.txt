@@ -10,11 +10,16 @@ include_directories(include)
 add_executable(Raytracing
         main.cpp
         include/glad.c
-        math_physics/VecSpherical.cpp
-        math_physics/VecSpherical.h
+        helper/VecSpherical.cpp
+        helper/VecSpherical.h
         app/App.cpp
         app/App.h
-        math_physics/HelperVectors.h
+        helper/HelperVectors.h
+        helper/Direction.h
+        app/Buffer.h
+        app/Helper.h
+        app/ShaderMethods.h
+        app/ShaderMethods.cpp
 )
 
 target_link_libraries(Raytracing PRIVATE

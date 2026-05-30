@@ -7,14 +7,15 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "../math_physics/HelperVectors.h"
+#include "Helper.h"
+#include "ShaderMethods.h"
+#include "../helper/HelperVectors.h"
 
-App::App(std::string &&title, int width, int height) {
+    App::App(std::string &&title, const int width, const int height) {
     if (!glfwInit()) {
         m_window = nullptr;
         return;
     }
-
     m_window = glfwCreateWindow(width, height, std::move(title).c_str(), nullptr, nullptr);
 
     if (!m_window) {
@@ -24,43 +25,53 @@ App::App(std::string &&title, int width, int height) {
     }
 
     glfwMakeContextCurrent(m_window);
+    glfwSwapInterval(1);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         glfwDestroyWindow(m_window);
         glfwTerminate();
         m_window = nullptr;
         return;
     }
 
-    glGenBuffers(1, &m_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, m_buffer);
+    glCall(glGenVertexArrays(1, &m_vao));
+    glCall(glBindVertexArray(m_vao));
 
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        6 * sizeof(float),
-        genPositionArray(
-            Vec2{0.f, 0.f},
-            Vec2{0.5f, 0.f},
-            Vec2{0.f, 0.5f}
-        ),
-        GL_STATIC_DRAW
-    );
+    m_vertexBuffer = Buffer<float>(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+    m_vertexBuffer.loadBuffer(new float[8]{
+                                  -.5f, -.5f,
+                                  .5f, -.5f,
+                                  .5f, .5f,
+                                  -.5f, .5f
+                              }, 8);
 
+    m_indexBuffer = Buffer<unsigned int>(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+    m_indexBuffer.loadBuffer(new unsigned int[6]{
+                                 0, 1, 2,
+                                 2, 3, 0
+                             }, 6);
+
+    m_vertexBuffer.bind();
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+    m_vertexBuffer.unBind();
 
-    auto parsedShader = parseShader("basic.shader");
+    m_shader = Shader("basic.glsl");
+    m_shader.addUniform("u_coef");
 
-    m_shader = createShader(parsedShader.vertexSrc, parsedShader.fragmentSrc);
-
-    glUseProgram(m_shader);
+    m_shader.setUniform("u_coef", glUniform1f, 1.2f);
 }
+
 
 void App::loop() {
     while (!glfwWindowShouldClose(m_window)) {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glCall(glClear(GL_COLOR_BUFFER_BIT));
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        m_indexBuffer.bind();
+        m_vertexBuffer.bind();
+            glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+        m_indexBuffer.unBind();
+        m_vertexBuffer.unBind();
 
         glfwSwapBuffers(m_window);
 
@@ -74,86 +85,4 @@ void App::loop() {
 App::~App() {
     glfwDestroyWindow(m_window);
     glfwTerminate();
-
-    glDeleteProgram(m_shader);
-}
-
-unsigned int App::ShaderMethods::createShader(const std::string &vertexShader, const std::string &fragmentShader) {
-    const unsigned int program = glCreateProgram();
-
-    const unsigned int vs = compileShader(vertexShader, GL_VERTEX_SHADER);
-    const unsigned int fs = compileShader(fragmentShader, GL_FRAGMENT_SHADER);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
-}
-
-unsigned int App::ShaderMethods::compileShader(const std::string &source, unsigned int type) {
-    const unsigned int id = glCreateShader(type);
-    const char *src = source.c_str();
-
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    int res;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &res);
-
-    if (res == GL_FALSE) {
-        int len;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &len);
-
-        char *err = static_cast<char*>(alloca(len * sizeof(char)));
-        glGetShaderInfoLog(id, len, &len, err);
-
-        std::cout << "[" << (type == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT") << "_SHADER_ERROR] " << err << '\n';
-
-        glDeleteShader(id);
-
-        throw std::exception("Shader compilation fail!");
-    }
-
-    return id;
-}
-
-App::ShaderMethods::ShaderSource App::ShaderMethods::parseShader(std::string path) {
-    std::fstream fin("shaders\\" + path);
-    std::string line;
-
-    std::stringstream ss[2];
-
-    ShaderType type = ShaderType::NONE;
-
-    while (getline(fin, line)) {
-        if (line.find("#shader") != std::string::npos) {
-            if (line.find("vertex") != std::string::npos) {
-                type = ShaderType::VERTEX;
-            }
-            else if (line.find("fragment") != std::string::npos) {
-                type = ShaderType::FRAGMENT;
-            }
-        }
-        else {
-            ss[static_cast<unsigned int>(type)] << line << '\n';
-        }
-    }
-
-    return { ss[0].str(), ss[1].str() };
-}
-
-[[nodiscard("Need to free the memory!")]]
-[[deprecated]]
-float *App::genPositionArray(const Vec2 v1, const Vec2 v2, const Vec2 v3) {
-    return new float[6]{
-        v1.x, v1.y,
-        v2.x, v2.y,
-        v3.x, v3.y
-    };
 }

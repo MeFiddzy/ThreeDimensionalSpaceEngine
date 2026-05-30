@@ -17,6 +17,8 @@ layout(location = 0) out vec4 color;
 
 in vec2 xyPos;
 
+uniform float u_coef;
+
 void main() {
-    color = vec4(xyPos.x, xyPos.x - xyPos.y, xyPos.y, 1.0);
+    color = vec4(u_coef * xyPos.x, 0, u_coef * xyPos.y, 1.0);
 }

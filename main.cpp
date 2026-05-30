@@ -1,7 +1,7 @@
 #include "app/App.h"
 
 int main() {
-    App *app = new App("Name", 800, 600);
+    App *app = new App("Name", 1600, 800);
 
     if (app->getWindow() == nullptr) {
         return -1;
