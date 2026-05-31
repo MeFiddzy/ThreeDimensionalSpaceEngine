@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.31)
-project(Raytracing)
+project(ThreeDimensionalSpaceEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -7,7 +7,7 @@ find_package(OpenGL REQUIRED)
 
 include_directories(include)
 
-add_executable(Raytracing
+add_executable(ThreeDimensionalSpaceEngine
         main.cpp
         include/glad.c
         helper/VecSpherical.cpp
@@ -22,7 +22,7 @@ add_executable(Raytracing
         app/ShaderMethods.cpp
 )
 
-target_link_libraries(Raytracing PRIVATE
+target_link_libraries(ThreeDimensionalSpaceEngine PRIVATE
         OpenGL::GL
         ${CMAKE_SOURCE_DIR}/libs/glfw3.lib
 )
