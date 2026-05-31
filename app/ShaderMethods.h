@@ -45,8 +45,8 @@ public:
             glCall(m_uniforms[name] = glGetUniformLocation(m_shaderID, name.c_str()));
     }
 
-    template<typename... Args>
-    void setUniform(const std::string &name, PFNGLUNIFORM1FPROC func, Args... args...) {
+    template<typename... Args, typename FuncT>
+    void setUniform(const std::string &name, FuncT func, Args... args...) {
         glCall(func(m_uniforms[name], args...))
     }
 

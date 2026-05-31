@@ -54,7 +54,6 @@
     m_vertexBuffer.bind();
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-    m_vertexBuffer.unBind();
 
     m_shader = Shader("basic.glsl");
     m_shader.addUniform("u_coef");
@@ -68,10 +67,8 @@ void App::loop() {
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
         m_indexBuffer.bind();
-        m_vertexBuffer.bind();
-            glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-        m_indexBuffer.unBind();
-        m_vertexBuffer.unBind();
+        glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
 
         glfwSwapBuffers(m_window);
 
