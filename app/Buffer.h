@@ -21,11 +21,9 @@ public:
         glCall(glGenBuffers(1, &m_bufferID));
     }
 
-    void loadBuffer(T data[], const unsigned int dataCount) {
+    void loadBuffer(T data[], const unsigned int dataCount) const {
         glCall(glBindBuffer(m_target, m_bufferID));
         glCall(glBufferData(m_target, sizeof(T) * dataCount, data, m_usage));
-
-        glCall(glBindBuffer(m_target, 0));
     }
 
     void bind() const {

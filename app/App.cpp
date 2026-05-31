@@ -11,7 +11,7 @@
 #include "ShaderMethods.h"
 #include "../helper/HelperVectors.h"
 
-    App::App(std::string &&title, const int width, const int height) {
+App::App(std::string &&title, const int width, const int height) {
     if (!glfwInit()) {
         m_window = nullptr;
         return;
@@ -34,8 +34,7 @@
         return;
     }
 
-    glCall(glGenVertexArrays(1, &m_vao));
-    glCall(glBindVertexArray(m_vao));
+    m_vao = VertexArray();
 
     m_vertexBuffer = Buffer<float>(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
     m_vertexBuffer.loadBuffer(new float[8]{
@@ -51,9 +50,13 @@
                                  2, 3, 0
                              }, 6);
 
-    m_vertexBuffer.bind();
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+    VertexArray::BufferLayout layout;
+    layout.push(VertexArray::BufferLayout::LayoutObject{
+        2,
+        GL_FLOAT,
+        GL_FALSE
+    });
+    m_vao.setLayout(m_vertexBuffer, layout , 0);
 
     m_shader = Shader("basic.glsl");
     m_shader.addUniform("u_coef");

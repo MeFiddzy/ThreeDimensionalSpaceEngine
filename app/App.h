@@ -3,6 +3,7 @@
 
 #include "Buffer.h"
 #include "ShaderMethods.h"
+#include "VertexArray.h"
 
 struct GLFWwindow;
 
@@ -20,7 +21,7 @@ public:
 private:
     GLFWwindow* m_window;
 
-    unsigned int m_vao{};
+    VertexArray m_vao;
 
     Buffer<float> m_vertexBuffer;
     Buffer<unsigned int> m_indexBuffer;
