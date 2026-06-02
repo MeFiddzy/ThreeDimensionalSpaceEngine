@@ -78,3 +78,11 @@ ShaderMethods::ShaderSource ShaderMethods::parseShader(const std::string &path) 
 
     return { ss[0].str(), ss[1].str() };
 }
+
+Shader::Shader(const Shader &&obj) noexcept {
+    m_shaderID = obj.m_shaderID;
+    m_shaderPath = obj.m_shaderPath;
+    m_uniforms = std::unordered_map(std::move(obj.m_uniforms));
+
+    delete &obj;
+}

@@ -14,7 +14,6 @@ inline void clearErrors(const char *function = nullptr, const char *file = nullp
 
 using GLType = unsigned int;
 using UInt = unsigned int;
+using ULLong = unsigned long long;
 
-#define glCall(x) clearErrors();\
-    x;\
-    clearErrors(#x, __FILE__, __LINE__, true);
+#define glCall(x) clearErrors(); x; clearErrors(#x, __FILE__, __LINE__, true);

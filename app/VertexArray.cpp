@@ -9,6 +9,12 @@ VertexArray::VertexArray(bool) {
     bind();
 }
 
+VertexArray::VertexArray(const VertexArray &&obj) noexcept {
+    m_vaoID = obj.m_vaoID;
+
+    delete &obj;
+}
+
 void VertexArray::bind() const {
     glCall(glBindVertexArray(m_vaoID));
 }

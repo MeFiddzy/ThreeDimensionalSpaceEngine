@@ -50,15 +50,18 @@ App::App(std::string &&title, const int width, const int height) {
                                  2, 3, 0
                              }, 6);
 
-    VertexArray::BufferLayout layout;
-    layout.push(VertexArray::BufferLayout::LayoutObject{
+    auto *layout = new VertexArray::BufferLayout();
+    layout->push(VertexArray::BufferLayout::LayoutObject{
         2,
         GL_FLOAT,
         GL_FALSE
     });
-    m_vao.setLayout(m_vertexBuffer, layout , 0);
+    m_vao.setLayout(m_vertexBuffer, *layout , 0);
+    delete layout;
 
     m_shader = Shader("basic.glsl");
+    m_shader.use();
+
     m_shader.addUniform("u_coef");
 
     m_shader.setUniform("u_coef", glUniform1f, 1.2f);
@@ -69,6 +72,8 @@ void App::loop() {
     while (!glfwWindowShouldClose(m_window)) {
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
+        m_shader.use();
+        m_vao.bind();
         m_indexBuffer.bind();
         glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
@@ -77,12 +82,16 @@ void App::loop() {
 
         glfwPollEvents();
 
-        m_deltaTime = glfwGetTime() - m_lastTime;
-        m_lastTime = glfwGetTime();
+        handleDT();
     }
 }
 
 App::~App() {
     glfwDestroyWindow(m_window);
     glfwTerminate();
+}
+
+void App::handleDT() {
+    m_deltaTime = glfwGetTime() - m_lastTime;
+    m_lastTime = glfwGetTime();
 }

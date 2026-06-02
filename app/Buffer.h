@@ -10,8 +10,31 @@ protected:
 public:
     Buffer() = default;
 
+    Buffer(Buffer &obj) {
+        *this = Buffer(obj.m_target, m_usage);
+    }
+
+    Buffer(const Buffer &&obj) noexcept {
+        m_bufferID = obj.m_bufferID;
+        m_target = obj.m_target;
+        m_usage = obj.m_usage;
+
+        delete &obj;
+    }
+
     ~Buffer() {
         glCall(glDeleteBuffers(1, &m_bufferID));
+    }
+
+    Buffer &operator=(Buffer &&other) noexcept {
+        if (this == &other) {
+            return *this;
+        }
+
+        m_bufferID = other.m_bufferID;
+        m_target = other.m_target;
+        m_usage = other.m_usage;
+        return *this;
     }
 
     explicit Buffer(const GLenum target, const GLenum usage) {

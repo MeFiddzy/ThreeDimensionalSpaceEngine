@@ -8,6 +8,16 @@ class VertexArray {
 public:
     class BufferLayout {
     public:
+        BufferLayout() = default;
+        BufferLayout(BufferLayout &obj) {
+            m_layout = std::vector(obj.m_layout);
+        }
+        BufferLayout(const BufferLayout &&obj) noexcept {
+            m_layout = std::vector(std::move(obj.m_layout));
+
+            delete &obj;
+        }
+
         struct LayoutObject {
             unsigned int size;
             GLType type;
@@ -25,6 +35,17 @@ public:
 
     explicit VertexArray(bool);
 
+    VertexArray(const VertexArray &&obj) noexcept;
+
+    VertexArray &operator=(VertexArray &&other) {
+        if (this == &other) {
+            return *this;
+        }
+
+        m_vaoID = other.m_vaoID;
+        other.m_vaoID = 0;
+    }
+
     template<typename T>
     void setLayout(const Buffer<T> &buffer, BufferLayout &layout, const unsigned int index) const {
         bind();
@@ -36,9 +57,10 @@ public:
 
         enableVertexAttribArray(index);
 
-        UInt pointer = 0;
+        ULLong pointer = 0;
 
         for (UInt i = 0; i < layout.getVector().size(); i++) {
+            glCall(glEnableVertexAttribArray(index + i));
             glCall(glVertexAttribPointer(i, layout.getVector()[i].size, layout.getVector()[i].type, layout.getVector()[i].normalized, stride, reinterpret_cast<void*>(pointer)));
 
             pointer += layout.getVector()[i].size * sizeof(T);

@@ -19,6 +19,8 @@ public:
 
     [[nodiscard]] double getDeltaTIme() const { return m_deltaTime; }
 private:
+    void handleDT();
+
     GLFWwindow* m_window;
 
     VertexArray m_vao;
