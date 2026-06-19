@@ -8,64 +8,82 @@ class VertexArray {
 public:
     class BufferLayout {
     public:
-        BufferLayout() = default;
-        BufferLayout(BufferLayout &obj) {
-            m_layout = std::vector(obj.m_layout);
-        }
-        BufferLayout(const BufferLayout &&obj) noexcept {
-            m_layout = std::vector(std::move(obj.m_layout));
-
-            delete &obj;
-        }
-
         struct LayoutObject {
             unsigned int size;
-            GLType type;
+            GLenum type;
             bool normalized;
         };
+
+        [[nodiscard]]
+        UInt getStride() const;
+
+        [[nodiscard]]
+        void *getPointer(UInt index) const;
+
+        BufferLayout() = default;
+
+        BufferLayout(const BufferLayout& obj)
+            : m_layout(obj.m_layout) {}
+
+        BufferLayout(BufferLayout&& obj) noexcept
+            : m_layout(std::move(obj.m_layout)) {}
+
+        explicit BufferLayout(std::vector<LayoutObject> objs)
+            : m_layout(std::move(objs)) {}
+
+        template<typename... Args>
+        explicit BufferLayout(Args&&... objs) {
+            m_layout.reserve(sizeof...(objs));
+            (m_layout.push_back(std::forward<Args>(objs)), ...);
+        }
+
+        BufferLayout& operator=(const BufferLayout& obj) {
+            if (this != &obj)
+                m_layout = obj.m_layout;
+            return *this;
+        }
+
+        BufferLayout& operator=(BufferLayout&& obj) noexcept {
+            if (this != &obj)
+                m_layout = std::move(obj.m_layout);
+            return *this;
+        }
+
     private:
         std::vector<LayoutObject> m_layout;
-    public:
-        void push(const LayoutObject &obj) { m_layout.push_back(obj); }
 
-        auto getVector() const { return m_layout; }
+    public:
+        void push(const LayoutObject& obj) {
+            m_layout.push_back(obj);
+        }
+        void push(LayoutObject&& obj) {
+            m_layout.push_back(std::move(obj));
+        }
+
+        [[nodiscard]]
+        const std::vector<LayoutObject>& getVector() const {
+            return m_layout;
+        }
     };
 
     VertexArray() = default;
 
     explicit VertexArray(bool);
 
-    VertexArray(const VertexArray &&obj) noexcept;
+    VertexArray(VertexArray &&obj) noexcept;
 
-    VertexArray &operator=(VertexArray &&other) {
+    VertexArray &operator=(VertexArray &&other) noexcept {
         if (this == &other) {
             return *this;
         }
 
         m_vaoID = other.m_vaoID;
         other.m_vaoID = 0;
+
+        return *this;
     }
 
-    template<typename T>
-    void setLayout(const Buffer<T> &buffer, BufferLayout &layout, const unsigned int index) const {
-        bind();
-        buffer.bind();
-
-        UInt stride = 0;
-        for (const auto& obj : layout.getVector())
-            stride += obj.size * sizeof(T);
-
-        enableVertexAttribArray(index);
-
-        ULLong pointer = 0;
-
-        for (UInt i = 0; i < layout.getVector().size(); i++) {
-            glCall(glEnableVertexAttribArray(index + i));
-            glCall(glVertexAttribPointer(i, layout.getVector()[i].size, layout.getVector()[i].type, layout.getVector()[i].normalized, stride, reinterpret_cast<void*>(pointer)));
-
-            pointer += layout.getVector()[i].size * sizeof(T);
-        }
-    }
+    void setLayout(const Buffer &buffer, const BufferLayout &layout, UInt index) const;
 
     void bind() const;
 

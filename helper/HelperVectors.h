@@ -1,5 +1,11 @@
 #pragma once
 
+#include <any>
+
+#include "../app/Helper.h"
+#include "../app/VertexArray.h"
+#include "../app/VertexArray.h"
+
 struct Vec3 {
     Vec3();
 
@@ -73,4 +79,24 @@ struct Vec2 {
     }
 
     float x, y;
+
+    static void loadComponents(std::vector<Buffer> &buffers, const std::vector<Vec2> &vertcies);
+
+    static VertexArray::BufferLayout bufferLayout;
 };
+
+inline VertexArray::BufferLayout Vec2::bufferLayout = VertexArray::BufferLayout(LO(2, GL_FLOAT, GL_FALSE));
+
+inline void Vec2::loadComponents(std::vector<Buffer> &buffers, const std::vector<Vec2> &vertcies) {
+    auto data = std::vector<float>();
+    UInt size = 0;
+
+    for (const auto &vertex : vertcies) {
+        data.emplace_back(vertex.x);
+        data.emplace_back(vertex.y);
+
+        size += 2;
+    }
+
+    buffers[0].loadBuffer(&data[0], size);
+}

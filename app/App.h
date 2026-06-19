@@ -2,6 +2,7 @@
 #include <string>
 
 #include "Buffer.h"
+#include "Render.h"
 #include "ShaderMethods.h"
 #include "VertexArray.h"
 
@@ -25,8 +26,10 @@ private:
 
     VertexArray m_vao;
 
-    Buffer<float> m_vertexBuffer;
-    Buffer<unsigned int> m_indexBuffer;
+    Render<Vec2> m_render;
+
+    Buffer m_vertexBuffer;
+    Buffer m_indexBuffer;
 
     double m_lastTime{};
     double m_deltaTime{};

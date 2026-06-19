@@ -22,6 +22,10 @@ add_executable(ThreeDimensionalSpaceEngine
         app/ShaderMethods.cpp
         app/VertexArray.cpp
         app/VertexArray.h
+        app/Renderer.cpp
+        app/Renderer.h
+        app/Render.h
+        helper/HelperVector.cpp
 )
 
 target_link_libraries(ThreeDimensionalSpaceEngine PRIVATE

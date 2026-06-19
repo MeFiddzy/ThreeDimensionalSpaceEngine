@@ -8,6 +8,7 @@
 #include "GLFW/glfw3.h"
 
 #include "Helper.h"
+#include "Render.h"
 #include "ShaderMethods.h"
 #include "../helper/HelperVectors.h"
 
@@ -34,36 +35,21 @@ App::App(std::string &&title, const int width, const int height) {
         return;
     }
 
-    m_vao = VertexArray();
+    m_render.addVertex(Vec2(-0.8f, -0.5f));
+    m_render.addVertex(Vec2( 0.8f, -0.5f));
+    m_render.addVertex(Vec2( 0.4f,  0.5f));
+    m_render.addVertex(Vec2(-0.4f,  0.5f));
 
-    m_vertexBuffer = Buffer<float>(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
-    m_vertexBuffer.loadBuffer(new float[8]{
-                                  -.5f, -.5f,
-                                  .5f, -.5f,
-                                  .5f, .5f,
-                                  -.5f, .5f
-                              }, 8);
+    m_render.addTriangle(Triangle<UInt>(0, 1, 2));
+    m_render.addTriangle(Triangle<UInt>(2, 3, 0));
 
-    m_indexBuffer = Buffer<unsigned int>(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
-    m_indexBuffer.loadBuffer(new unsigned int[6]{
-                                 0, 1, 2,
-                                 2, 3, 0
-                             }, 6);
-
-    auto *layout = new VertexArray::BufferLayout();
-    layout->push(VertexArray::BufferLayout::LayoutObject{
-        2,
-        GL_FLOAT,
-        GL_FALSE
-    });
-    m_vao.setLayout(m_vertexBuffer, *layout , 0);
-    delete layout;
+    m_indexBuffer = m_render.getIndexBuffer(GL_STATIC_DRAW);
+    m_vao = m_render.getVertexArray(GL_STATIC_DRAW);
+    m_vertexBuffer = std::move(m_render.getVertexBuffers()[0]);
 
     m_shader = Shader("basic.glsl");
     m_shader.use();
-
     m_shader.addUniform("u_coef");
-
     m_shader.setUniform("u_coef", glUniform1f, 1.2f);
 }
 

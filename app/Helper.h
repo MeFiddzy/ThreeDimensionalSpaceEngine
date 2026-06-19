@@ -12,8 +12,33 @@ inline void clearErrors(const char *function = nullptr, const char *file = nullp
     }
 }
 
-using GLType = unsigned int;
+template<typename T>
+struct Triangle {
+    T v1, v2, v3;
+};
+
 using UInt = unsigned int;
 using ULLong = unsigned long long;
+#define LO VertexArray::BufferLayout::LayoutObject
+
+inline UInt glSize(const GLenum type) {
+    switch (type) {
+        case GL_FLOAT:
+            return 4;
+        case GL_DOUBLE:
+            return 8;
+        case GL_INT:
+        case GL_UNSIGNED_INT:
+            return 4;
+        case GL_SHORT:
+        case GL_UNSIGNED_SHORT:
+            return 2;
+        case GL_BYTE:
+        case GL_UNSIGNED_BYTE:
+            return 1;
+        default:
+            return 0;
+    }
+}
 
 #define glCall(x) clearErrors(); x; clearErrors(#x, __FILE__, __LINE__, true);
