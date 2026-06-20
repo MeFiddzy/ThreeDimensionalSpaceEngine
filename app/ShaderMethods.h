@@ -35,13 +35,13 @@ public:
     Shader(const Shader &&obj) noexcept;
 
     explicit Shader(const char *path) : m_shaderPath(std::string(path)) {
-        const auto [vertexSrc, fragmentSrc] =  ShaderMethods::parseShader(path);
+        const auto [vertexSrc, fragmentSrc] = ShaderMethods::parseShader(path);
         m_shaderID = ShaderMethods::createShader(vertexSrc, fragmentSrc);
 
-        glCall(glUseProgram(m_shaderID));
+        use();
     }
 
-    Shader &operator=(Shader &&other) {
+    Shader &operator=(Shader &&other)  noexcept {
         if (this == &other)
             return *this;
 
@@ -54,6 +54,10 @@ public:
 
     void use() const {
         glCall(glUseProgram(m_shaderID));
+    }
+
+    void unUse() const {
+        glCall(glUseProgram(0));
     }
 
     void addUniform(const std::string &name) {

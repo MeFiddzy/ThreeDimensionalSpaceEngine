@@ -24,12 +24,7 @@ private:
 
     GLFWwindow* m_window;
 
-    VertexArray m_vao;
-
     Render<Vec2> m_render;
-
-    Buffer m_vertexBuffer;
-    Buffer m_indexBuffer;
 
     double m_lastTime{};
     double m_deltaTime{};

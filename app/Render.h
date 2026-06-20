@@ -28,9 +28,8 @@ public:
         m_vertices.emplace_back(vertex);
     }
 
-    [[nodiscard]]
-    Buffer getIndexBuffer(const GLenum usage) const {
-        Buffer indexBuffer(GL_ELEMENT_ARRAY_BUFFER, usage);
+    void genIndexBuffer(const GLenum usage) {
+        m_indexBuffer = Buffer(GL_ELEMENT_ARRAY_BUFFER, usage);
         std::vector<UInt> data;
         data.reserve(m_triangles.size() * 3);
 
@@ -41,41 +40,57 @@ public:
         }
 
         if (!data.empty()) {
-            indexBuffer.loadBuffer<UInt>(data.data(), data.size());
+            m_indexBuffer.loadBuffer<UInt>(data.data(), data.size());
         }
-
-        return indexBuffer;
     }
 
-    [[nodiscard]]
-    VertexArray getVertexArray(const GLenum usage) {
-        VertexArray vao(true);
+    void genVertexArray(const GLenum usage) {
+        m_vao = VertexArray(true);
 
         static_assert(HasBufferLayout<T>, "Vertex class must have a buffer layout static variable.");
 
         const VertexArray::BufferLayout &bufferLayout = T::bufferLayout;
         const std::size_t count = bufferLayout.getVector().size();
 
-        m_buffers.clear();
-        m_buffers.reserve(count);
+        m_vertexBuffers.clear();
+        m_vertexBuffers.reserve(count);
         for (std::size_t i = 0; i < count; i++) {
-            m_buffers.emplace_back(GL_ARRAY_BUFFER, usage);
+            m_vertexBuffers.emplace_back(GL_ARRAY_BUFFER, usage);
         }
 
-        T::loadComponents(m_buffers, m_vertices);
+        T::loadComponents(m_vertexBuffers, m_vertices);
 
         for (std::size_t i = 0; i < count; i++) {
-            vao.setLayout(m_buffers[i], bufferLayout, static_cast<UInt>(i));
+            m_vao.setLayout(m_vertexBuffers[i], bufferLayout, static_cast<UInt>(i));
         }
+    }
 
-        return vao;
+    void draw() const {
+        m_vao.bind();
+        m_indexBuffer.bind();
+        glCall(glDrawElements(GL_TRIANGLES, 3 * m_triangles.size(), GL_UNSIGNED_INT, nullptr));
+    }
+
+    void genBuffers(const GLenum usage) {
+        genIndexBuffer(usage);
+        genVertexArray(usage);
     }
 
     std::vector<Buffer> &getVertexBuffers() {
-        return m_buffers;
+        return m_vertexBuffers;
+    }
+
+    Buffer &getIndexBuffer() {
+        return m_indexBuffer;
+    }
+
+    VertexArray &getVAO() {
+        return m_vao;
     }
 private:
-    std::vector<Buffer> m_buffers;
+    std::vector<Buffer> m_vertexBuffers;
+    Buffer m_indexBuffer;
+    VertexArray m_vao;
     std::vector<T> m_vertices;
     std::vector<Triangle<UInt>> m_triangles;
 };

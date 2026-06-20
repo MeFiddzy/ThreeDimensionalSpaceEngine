@@ -43,12 +43,9 @@ App::App(std::string &&title, const int width, const int height) {
     m_render.addTriangle(Triangle<UInt>(0, 1, 2));
     m_render.addTriangle(Triangle<UInt>(2, 3, 0));
 
-    m_indexBuffer = m_render.getIndexBuffer(GL_STATIC_DRAW);
-    m_vao = m_render.getVertexArray(GL_STATIC_DRAW);
-    m_vertexBuffer = std::move(m_render.getVertexBuffers()[0]);
+    m_render.genBuffers(GL_STATIC_DRAW);
 
     m_shader = Shader("basic.glsl");
-    m_shader.use();
     m_shader.addUniform("u_coef");
     m_shader.setUniform("u_coef", glUniform1f, 1.2f);
 }
@@ -59,10 +56,7 @@ void App::loop() {
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
         m_shader.use();
-        m_vao.bind();
-        m_indexBuffer.bind();
-        glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-
+        m_render.draw();
 
         glfwSwapBuffers(m_window);
 

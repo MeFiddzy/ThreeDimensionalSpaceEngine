@@ -22,8 +22,8 @@ add_executable(ThreeDimensionalSpaceEngine
         app/ShaderMethods.cpp
         app/VertexArray.cpp
         app/VertexArray.h
-        app/Renderer.cpp
-        app/Renderer.h
+        app/Renderer2D.cpp
+        app/Renderer2D.h
         app/Render.h
         helper/HelperVector.cpp
 )
