@@ -11,6 +11,13 @@ private:
 public:
     ~Texture();
     Texture() = default;
+
+    Texture(const Texture &other);
+    Texture(Texture &&other) noexcept;
+
+    Texture &operator=(const Texture &other);
+    Texture &operator=(Texture &&other) noexcept;
+
     explicit Texture(const std::string &path);
 
     void bind(UInt slot = 0) const;

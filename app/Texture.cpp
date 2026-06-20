@@ -9,6 +9,49 @@ Texture::~Texture() {
     glCall(glDeleteTextures(1, &m_rendererID));
 }
 
+Texture::Texture(const Texture &other) {
+    m_rendererID = other.m_rendererID;
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_BPP = other.m_BPP;
+    m_filePath = other.m_filePath;
+}
+
+Texture::Texture(Texture &&other) noexcept {
+    m_rendererID = other.m_rendererID;
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_BPP = other.m_BPP;
+    m_filePath = other.m_filePath;
+
+    other.m_rendererID = 0;
+}
+
+Texture & Texture::operator=(const Texture &other) {
+    m_rendererID = other.m_rendererID;
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_BPP = other.m_BPP;
+    m_filePath = other.m_filePath;
+
+    return *this;
+}
+
+Texture & Texture::operator=(Texture &&other) noexcept {
+    if (this == &other)
+        return *this;
+
+    m_rendererID = other.m_rendererID;
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_BPP = other.m_BPP;
+    m_filePath = other.m_filePath;
+
+    other.m_rendererID = 0;
+
+    return *this;
+}
+
 Texture::Texture(const std::string &path) : m_filePath(path){
     stbi_set_flip_vertically_on_load(1);
     m_buffer = stbi_load(path.c_str(), &m_width, &m_height, &m_BPP, 4);

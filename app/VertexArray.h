@@ -14,12 +14,6 @@ public:
             bool normalized;
         };
 
-        [[nodiscard]]
-        UInt getStride() const;
-
-        [[nodiscard]]
-        void *getPointer(UInt index) const;
-
         BufferLayout() = default;
 
         BufferLayout(const BufferLayout& obj)
