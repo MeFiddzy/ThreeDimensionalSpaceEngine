@@ -31,8 +31,6 @@ private:
 
     Renderer<TexturedShape> m_renderer;
 
-    Render<TexturedShape> m_render;
-
     double m_lastTime{};
     double m_deltaTime{};
 };
