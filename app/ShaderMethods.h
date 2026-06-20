@@ -32,7 +32,7 @@ class Shader {
     std::unordered_map<std::string, unsigned int> m_uniforms;
 public:
     Shader() = default;
-    Shader(const Shader &&obj) noexcept;
+    Shader(Shader &&obj) noexcept;
 
     explicit Shader(const char *path) : m_shaderPath(std::string(path)) {
         const auto [vertexSrc, fragmentSrc] = ShaderMethods::parseShader(path);
@@ -48,6 +48,8 @@ public:
         m_shaderID = other.m_shaderID;
         m_shaderPath = other.m_shaderPath;
         m_uniforms = std::unordered_map(std::move(other.m_uniforms));
+
+        other.m_shaderID = 0;
 
         return *this;
     }

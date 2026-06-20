@@ -19,6 +19,15 @@ unsigned int ShaderMethods::createShader(const std::string &vertexShader, const 
     glAttachShader(program, fs);
 
     glLinkProgram(program);
+    int linkStatus;
+    glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+    if (linkStatus == GL_FALSE) {
+        int len;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
+        char *err = static_cast<char*>(alloca(len * sizeof(char)));
+        glGetProgramInfoLog(program, len, &len, err);
+        std::cout << "[SHADER_LINK_ERROR] " << err << '\n';
+    }
     glValidateProgram(program);
 
     glDeleteShader(vs);
@@ -55,7 +64,7 @@ unsigned int ShaderMethods::compileShader(const std::string &source, unsigned in
 }
 
 ShaderMethods::ShaderSource ShaderMethods::parseShader(const std::string &path) {
-    std::fstream fin("res\\shaders\\" + path);
+    std::fstream fin("resources\\shaders\\" + path);
     std::string line;
 
     std::stringstream ss[2];
@@ -79,10 +88,10 @@ ShaderMethods::ShaderSource ShaderMethods::parseShader(const std::string &path) 
     return { ss[0].str(), ss[1].str() };
 }
 
-Shader::Shader(const Shader &&obj) noexcept {
+Shader::Shader(Shader &&obj) noexcept {
     m_shaderID = obj.m_shaderID;
     m_shaderPath = obj.m_shaderPath;
     m_uniforms = std::unordered_map(std::move(obj.m_uniforms));
 
-    delete &obj;
+    obj.m_shaderID = 0;
 }

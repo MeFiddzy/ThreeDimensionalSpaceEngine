@@ -3,9 +3,12 @@
 
 #include "Buffer.h"
 #include "Render.h"
+#include "Renderer.h"
 #include "ShaderMethods.h"
+#include "Texture.h"
 #include "VertexArray.h"
 
+struct TexturedShape;
 struct GLFWwindow;
 
 class App {
@@ -24,10 +27,12 @@ private:
 
     GLFWwindow* m_window;
 
-    Render<Vec2> m_render;
+    Texture m_texture;
+
+    Renderer<TexturedShape> m_renderer;
+
+    Render<TexturedShape> m_render;
 
     double m_lastTime{};
     double m_deltaTime{};
-
-    Shader m_shader;
 };

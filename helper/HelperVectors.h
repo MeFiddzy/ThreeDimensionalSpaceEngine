@@ -71,7 +71,7 @@ struct Vec3 {
 };
 
 struct Vec2 {
-    Vec2();
+    Vec2() = default;
 
     Vec2(const float x, const float y) {
         this->x = x;

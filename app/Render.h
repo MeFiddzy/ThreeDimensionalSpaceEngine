@@ -3,6 +3,7 @@
 
 #include "Buffer.h"
 #include "Helper.h"
+#include "ShaderMethods.h"
 #include "VertexArray.h"
 #include "../helper/HelperVectors.h"
 
@@ -19,6 +20,18 @@ public:
     Render &operator=(const Render&) = default;
     Render(Render&&) = default;
     Render &operator=(Render&&) = default;
+
+    Shader &shader() {
+        return m_shader;
+    }
+
+    void addShader(Shader &shader) {
+        m_shader = std::move(shader);
+    }
+
+    void addShader(Shader &&shader) {
+        m_shader = std::move(shader);
+    }
 
     void addTriangle(const Triangle<UInt> &triangle) {
         m_triangles.push_back(triangle);
@@ -67,6 +80,7 @@ public:
 
     void draw() const {
         m_vao.bind();
+        m_shader.use();
         m_indexBuffer.bind();
         glCall(glDrawElements(GL_TRIANGLES, 3 * m_triangles.size(), GL_UNSIGNED_INT, nullptr));
     }
@@ -90,7 +104,11 @@ public:
 private:
     std::vector<Buffer> m_vertexBuffers;
     Buffer m_indexBuffer;
+
     VertexArray m_vao;
+
+    Shader m_shader;
+
     std::vector<T> m_vertices;
     std::vector<Triangle<UInt>> m_triangles;
 };

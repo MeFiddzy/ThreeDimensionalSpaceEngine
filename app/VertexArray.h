@@ -91,6 +91,13 @@ public:
     void disableVertexAttribArray(unsigned int index) const;
 
     static void unBind();
+
+    ~VertexArray() {
+        if (!m_vaoID)
+            return;
+
+        glCall(glDeleteVertexArrays(1, &m_vaoID));
+    }
 private:
     unsigned int m_vaoID{};
 };

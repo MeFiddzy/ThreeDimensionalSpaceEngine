@@ -10,6 +10,7 @@
 #include "Helper.h"
 #include "Render.h"
 #include "ShaderMethods.h"
+#include "TexturedShape.h"
 #include "../helper/HelperVectors.h"
 
 App::App(std::string &&title, const int width, const int height) {
@@ -35,32 +36,30 @@ App::App(std::string &&title, const int width, const int height) {
         return;
     }
 
-    m_render.addVertex(Vec2(-0.8f, -0.5f));
-    m_render.addVertex(Vec2( 0.8f, -0.5f));
-    m_render.addVertex(Vec2( 0.4f,  0.5f));
-    m_render.addVertex(Vec2(-0.4f,  0.5f));
+    m_render.addVertex(TexturedShape({-0.5f, -0.5f}, {0.f, 0.f}));
+    m_render.addVertex(TexturedShape({0.5f, -0.5f}, {1.f, 0.f}));
+    m_render.addVertex(TexturedShape({0.5f, 0.5f}, {1.f, 1.f}));
+    m_render.addVertex(TexturedShape({-0.5f, 0.5f}, {0.f, 1.f}));
 
     m_render.addTriangle(Triangle<UInt>(0, 1, 2));
     m_render.addTriangle(Triangle<UInt>(2, 3, 0));
 
     m_render.genBuffers(GL_STATIC_DRAW);
 
-    m_shader = Shader("basic.glsl");
-    m_shader.addUniform("u_coef");
-    m_shader.setUniform("u_coef", glUniform1f, 1.2f);
+    m_render.addShader(Shader("texture_shader.glsl"));
+
+    m_texture = Texture("resources/textures/thumbs_up.png");
+    m_texture.bind();
+    m_render.shader().addUniform("u_textureSlot");
+    m_render.shader().setUniform("u_textureSlot", glUniform1i, 0);
+
+    m_renderer.addRender(&m_render);
 }
 
 
 void App::loop() {
     while (!glfwWindowShouldClose(m_window)) {
-        glCall(glClear(GL_COLOR_BUFFER_BIT));
-
-        m_shader.use();
-        m_render.draw();
-
-        glfwSwapBuffers(m_window);
-
-        glfwPollEvents();
+        m_renderer.render(m_window);
 
         handleDT();
     }
