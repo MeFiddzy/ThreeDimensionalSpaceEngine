@@ -16,6 +16,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/glm.hpp"
 #include "materials/ColorMaterial.h"
+#include "materials/TextureMaterial.h"
 
 App::App(std::string &&title, const int width, const int height) {
     if (!glfwInit()) {
@@ -40,12 +41,13 @@ App::App(std::string &&title, const int width, const int height) {
         return;
     }
 
-    float aspectRatioInv = static_cast<float>(height) / static_cast<float>(width);
+    const float aspectRatioInv = static_cast<float>(height) / static_cast<float>(width);
 
     glm::mat4 proj = glm::ortho<float>(-2.f, 2.f, -aspectRatioInv * 2.f, aspectRatioInv * 2.f, -1.f, 1.f);
 
     auto *render1 = new Render<TexturedShape>;
     auto *render2 = new Render<TexturedShape>;
+    auto *render3 = new Render<TexturedShape>;
 
     render1->addVertex(TexturedShape({-0.5f, -0.5f}, {0.f, 0.f}));
     render1->addVertex(TexturedShape({0.5f, -0.5f}, {1.f, 0.f}));
@@ -72,18 +74,26 @@ App::App(std::string &&title, const int width, const int height) {
     render2->setShaderType(ShaderType::MATERIAL);
     render2->addMaterial(new ColorMaterial(Color(0.f, 0.f, 1.f, .5f), proj));
 
-    /*
-    m_texture = Texture("resources/textures/thumbs_up.png");
-    m_texture.bind();
-    render1->shader().addUniform("u_textureSlot");
-    render1->shader().setUniform("u_textureSlot", glUniform1i, 0);
-    */
+
+    render3->addVertex(TexturedShape({-0.f, -0.f}, {0.f, 0.f}));
+    render3->addVertex(TexturedShape({1.5f, -0.f}, {1.f, 0.f}));
+    render3->addVertex(TexturedShape({1.5f, 1.5f}, {1.f, 1.f}));
+    render3->addVertex(TexturedShape({-0.f, 1.5f}, {0.f, 1.f}));
+
+    render3->addTriangle(Triangle<UInt>(0, 1, 2));
+    render3->addTriangle(Triangle<UInt>(2, 3, 0));
+
+    render3->setShaderType(ShaderType::MATERIAL);
+    render3->addMaterial(new TextureMaterial(Texture("resources/textures/thumbs_up.png"), proj, 0));
+
+    render3->genBuffers(GL_STATIC_DRAW);
 
     glCall(glEnable(GL_BLEND));
     glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
 
     m_renderer.addRender(render1);
     m_renderer.addRender(render2);
+    m_renderer.addRender(render3);
 }
 
 
