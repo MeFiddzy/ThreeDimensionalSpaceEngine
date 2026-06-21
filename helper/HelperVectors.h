@@ -82,6 +82,14 @@ struct Vec2 {
 
     static void loadComponents(std::vector<Buffer> &buffers, const std::vector<Vec2> &vertcies);
 
+    Vec2 operator*(const float s) const {
+        return Vec2(s * x, s * y);
+    }
+
+    Vec2 operator/(const float s) const {
+        return Vec2(x / s, y / s);
+    }
+
     static VertexArray::BufferLayout bufferLayout;
 };
 

@@ -1,7 +1,6 @@
 #include "App.h"
 
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 #include "glad/glad.h"
@@ -9,8 +8,7 @@
 
 #include "Helper.h"
 #include "Render.h"
-#include "ShaderMethods.h"
-#include "TexturedShape.h"
+#include "ShapeGeneration.h"
 #include "../helper/HelperVectors.h"
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -18,12 +16,17 @@
 #include "materials/ColorMaterial.h"
 #include "materials/TextureMaterial.h"
 
-App::App(std::string &&title, const int width, const int height) {
+float App::s_span = 4.f;
+
+App::App(const int width, const int height) {
+    s_width = width;
+    s_height = height;
+
     if (!glfwInit()) {
         m_window = nullptr;
         return;
     }
-    m_window = glfwCreateWindow(width, height, std::move(title).c_str(), nullptr, nullptr);
+    m_window = glfwCreateWindow(width, height, "Title", nullptr, nullptr);
 
     if (!m_window) {
         glfwTerminate();
@@ -43,57 +46,31 @@ App::App(std::string &&title, const int width, const int height) {
 
     const float aspectRatioInv = static_cast<float>(height) / static_cast<float>(width);
 
-    glm::mat4 proj = glm::ortho<float>(-2.f, 2.f, -aspectRatioInv * 2.f, aspectRatioInv * 2.f, -1.f, 1.f);
+    glm::mat4 proj = glm::ortho<float>(-s_span / 2, s_span / 2, -aspectRatioInv * 2.f, aspectRatioInv * 2.f, -1.f, 1.f);
 
-    auto *render1 = new Render<TexturedShape>;
-    auto *render2 = new Render<TexturedShape>;
-    auto *render3 = new Render<TexturedShape>;
-
-    render1->addVertex(TexturedShape({-0.5f, -0.5f}, {0.f, 0.f}));
-    render1->addVertex(TexturedShape({0.5f, -0.5f}, {1.f, 0.f}));
-    render1->addVertex(TexturedShape({0.5f, 0.5f}, {1.f, 1.f}));
-    render1->addVertex(TexturedShape({-0.5f, 0.5f}, {0.f, 1.f}));
-
-    render2->addVertex(TexturedShape({-0.2f, -0.2f}, {0.f, 0.f}));
-    render2->addVertex(TexturedShape({0.8f, -0.2f}, {1.f, 0.f}));
-    render2->addVertex(TexturedShape({0.8f, 0.8f}, {1.f, 1.f}));
-    render2->addVertex(TexturedShape({-0.2f, 0.8f}, {0.f, 1.f}));
-
-    render1->addTriangle(Triangle<UInt>(0, 1, 2));
-    render1->addTriangle(Triangle<UInt>(2, 3, 0));
-
-    render2->addTriangle(Triangle<UInt>(0, 1, 2));
-    render2->addTriangle(Triangle<UInt>(2, 3, 0));
-
-    render1->genBuffers(GL_STATIC_DRAW);
-    render2->genBuffers(GL_STATIC_DRAW);
-
+    auto *render1 = ShapeGeneration::connectPoints({
+        ub(300,300),
+        ub(500,300),
+        ub(500,500),
+        ub(300,500),
+    });
     render1->setShaderType(ShaderType::MATERIAL);
     render1->addMaterial(new ColorMaterial(Color(1.f, 0.f, 0.f, .5f), proj));
 
+    auto *render2 = ShapeGeneration::connectPoints({
+        ub(100, 100),
+        ub(200, 100),
+        ub(400, 500),
+        ub(100, 200)
+    });
     render2->setShaderType(ShaderType::MATERIAL);
     render2->addMaterial(new ColorMaterial(Color(0.f, 0.f, 1.f, .5f), proj));
-
-
-    render3->addVertex(TexturedShape({-0.f, -0.f}, {0.f, 0.f}));
-    render3->addVertex(TexturedShape({1.5f, -0.f}, {1.f, 0.f}));
-    render3->addVertex(TexturedShape({1.5f, 1.5f}, {1.f, 1.f}));
-    render3->addVertex(TexturedShape({-0.f, 1.5f}, {0.f, 1.f}));
-
-    render3->addTriangle(Triangle<UInt>(0, 1, 2));
-    render3->addTriangle(Triangle<UInt>(2, 3, 0));
-
-    render3->setShaderType(ShaderType::MATERIAL);
-    render3->addMaterial(new TextureMaterial(Texture("resources/textures/thumbs_up.png"), proj, 0));
-
-    render3->genBuffers(GL_STATIC_DRAW);
 
     glCall(glEnable(GL_BLEND));
     glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
 
     m_renderer.addRender(render1);
     m_renderer.addRender(render2);
-    m_renderer.addRender(render3);
 }
 
 
@@ -108,6 +85,24 @@ void App::loop() {
 App::~App() {
     glfwDestroyWindow(m_window);
     glfwTerminate();
+}
+
+int App::s_height = 0;
+int App::s_width = 0;
+
+Vec2 App::px(const Vec2 &vec) {
+    return vec * (s_width / s_span);
+}
+
+Vec2 App::u(const Vec2 &vec) {
+    return vec / (s_width / s_span);
+}
+
+Vec2 App::ub(const UInt x, const UInt y) {
+    return u(Vec2(
+        static_cast<float>(x) - static_cast<float>(s_width) / 2.f,
+        static_cast<float>(s_height) / 2.f - static_cast<float>(y)
+    ));
 }
 
 void App::handleDT() {

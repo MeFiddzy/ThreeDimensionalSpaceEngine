@@ -13,7 +13,7 @@ struct GLFWwindow;
 
 class App {
 public:
-    App(std::string &&title, int width, int height);
+    App(int width, int height);
 
     void loop();
 
@@ -22,7 +22,14 @@ public:
     [[nodiscard]] const GLFWwindow *getWindow() const { return m_window; }
 
     [[nodiscard]] double getDeltaTIme() const { return m_deltaTime; }
+
+    static Vec2 px(const Vec2 &vec);
+    static Vec2 u(const Vec2 &vec);
+    static Vec2 ub(UInt x, UInt y);
 private:
+    static int s_width;
+    static int s_height;
+
     void handleDT();
 
     GLFWwindow* m_window;
@@ -30,6 +37,8 @@ private:
     Texture m_texture;
 
     Renderer<TexturedShape> m_renderer;
+
+    static float s_span;
 
     double m_lastTime{};
     double m_deltaTime{};
