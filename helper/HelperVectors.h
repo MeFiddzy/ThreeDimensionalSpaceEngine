@@ -46,27 +46,6 @@ struct Vec3 {
 
         return *this;
     }
-
-    [[nodiscard]]
-    float dotProd(const Vec3 other) const {
-        return this->x * other.x +
-            this->y * other.y +
-            this->z * other.z;
-    }
-
-    [[nodiscard]]
-    Vec3 crossProd(const Vec3 other) const {
-        return Vec3(
-            this->y * other.z - this->z * other.y,
-            this->x * other.z - this->z * other.x,
-            this->x * other.y - this->y * other.x
-        );
-    }
-
-    [[nodiscard]]
-    float absoluteValue() const {
-        return std::sqrt(x * x + y * y + z * z);
-    }
     float x, y, z;
 };
 

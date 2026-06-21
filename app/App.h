@@ -6,6 +6,7 @@
 #include "Renderer.h"
 #include "ShaderMethods.h"
 #include "Texture.h"
+#include "glm/glm.hpp"
 #include "VertexArray.h"
 
 struct TexturedShape;
@@ -22,10 +23,6 @@ public:
     [[nodiscard]] const GLFWwindow *getWindow() const { return m_window; }
 
     [[nodiscard]] double getDeltaTIme() const { return m_deltaTime; }
-
-    static Vec2 px(const Vec2 &vec);
-    static Vec2 u(const Vec2 &vec);
-    static Vec2 ub(UInt x, UInt y);
 private:
     static int s_width;
     static int s_height;
@@ -38,7 +35,7 @@ private:
 
     Renderer<TexturedShape> m_renderer;
 
-    static float s_span;
+    glm::mat4 m_proj;
 
     double m_lastTime{};
     double m_deltaTime{};

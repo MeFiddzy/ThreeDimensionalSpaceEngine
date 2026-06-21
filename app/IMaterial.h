@@ -9,5 +9,7 @@ public:
 
     virtual ~IMaterial() = default;
 
+    IMaterial() = default;
+
     virtual void onDraw() {}
 };
