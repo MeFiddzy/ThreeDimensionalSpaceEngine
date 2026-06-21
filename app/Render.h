@@ -3,6 +3,7 @@
 
 #include "Buffer.h"
 #include "Helper.h"
+#include "IMaterial.h"
 #include "ShaderMethods.h"
 #include "VertexArray.h"
 #include "../helper/HelperVectors.h"
@@ -12,9 +13,17 @@ concept HasBufferLayout = requires {
     { T::bufferLayout } -> std::convertible_to<VertexArray::BufferLayout>;
 };
 
+enum class ShaderType {
+    SHADER,
+    MATERIAL
+};
+
 template<typename T>
 class Render {
 public:
+    ~Render() {
+        delete m_material;
+    }
     Render() = default;
     Render(const Render&) = default;
     Render &operator=(const Render&) = default;
@@ -23,6 +32,17 @@ public:
 
     Shader &shader() {
         return m_shader;
+    }
+
+    void setShaderType(const ShaderType type) {
+        m_shaderType = type;
+    }
+
+    template<typename R>
+    void addMaterial(R *material) {
+        static_assert(std::derived_from<R, IMaterial>, "Material must be a subclass of IMaterial.");
+
+        m_material = static_cast<IMaterial*>(material);
     }
 
     void addShader(Shader &shader) {
@@ -39,6 +59,11 @@ public:
 
     void addVertex(const T &vertex) {
         m_vertices.emplace_back(vertex);
+    }
+
+    [[nodiscard]]
+    IMaterial *getMaterial() const {
+        return m_material;
     }
 
     void genIndexBuffer(const GLenum usage) {
@@ -80,7 +105,12 @@ public:
 
     void draw() const {
         m_vao.bind();
-        m_shader.use();
+
+        if (m_shaderType == ShaderType::SHADER)
+            m_shader.use();
+        else {
+            m_material->shader().use();
+        }
         m_indexBuffer.bind();
         glCall(glDrawElements(GL_TRIANGLES, 3 * m_triangles.size(), GL_UNSIGNED_INT, nullptr));
     }
@@ -89,6 +119,8 @@ public:
         genIndexBuffer(usage);
         genVertexArray(usage);
     }
+
+    [[nodiscard]] ShaderType getShaderType() const { return m_shaderType; }
 
     std::vector<Buffer> &getVertexBuffers() {
         return m_vertexBuffers;
@@ -108,6 +140,9 @@ private:
     VertexArray m_vao;
 
     Shader m_shader;
+    IMaterial *m_material{};
+
+    ShaderType m_shaderType = ShaderType::SHADER;
 
     std::vector<T> m_vertices;
     std::vector<Triangle<UInt>> m_triangles;

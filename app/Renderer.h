@@ -28,6 +28,10 @@ public:
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
         for (const Render<T> *render : m_renders) {
+            if (render->getShaderType() == ShaderType::MATERIAL) {
+                render->getMaterial()->onDraw();
+            }
+
             render->draw();
         }
 

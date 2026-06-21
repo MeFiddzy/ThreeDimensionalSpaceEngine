@@ -15,6 +15,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/glm.hpp"
+#include "materials/ColorMaterial.h"
 
 App::App(std::string &&title, const int width, const int height) {
     if (!glfwInit()) {
@@ -65,15 +66,11 @@ App::App(std::string &&title, const int width, const int height) {
     render1->genBuffers(GL_STATIC_DRAW);
     render2->genBuffers(GL_STATIC_DRAW);
 
-    render1->addShader(Shader("color_shader.glsl"));
-    render1->shader().addUniform("u_color");
-    render1->shader().setUniform("u_color", glUniform4f, 1.f, 0.f, 0.f, .5f);
-    render1->shader().setUniform("u_MVP", glUniformMatrix4fv, 1, GL_FALSE, &proj[0][0]);
+    render1->setShaderType(ShaderType::MATERIAL);
+    render1->addMaterial(new ColorMaterial(Color(1.f, 0.f, 0.f, .5f), proj));
 
-    render2->addShader(Shader("color_shader.glsl"));
-    render2->shader().addUniform("u_color");
-    render2->shader().setUniform("u_color", glUniform4f, 0.f, 0.f, 1.f, .5f);
-    render2->shader().setUniform("u_MVP", glUniformMatrix4fv, 1, GL_FALSE, &proj[0][0]);
+    render2->setShaderType(ShaderType::MATERIAL);
+    render2->addMaterial(new ColorMaterial(Color(0.f, 0.f, 1.f, .5f), proj));
 
     /*
     m_texture = Texture("resources/textures/thumbs_up.png");
