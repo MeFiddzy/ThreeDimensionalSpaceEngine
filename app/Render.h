@@ -27,8 +27,32 @@ public:
     Render() = default;
     Render(const Render&) = default;
     Render &operator=(const Render&) = default;
-    Render(Render&&) = default;
-    Render &operator=(Render&&) = default;
+    Render(Render&& other) noexcept {
+        *this = std::move(other);
+    }
+    Render &operator=(Render&& other) noexcept {
+        if (this == &other) {
+            return *this;
+        }
+
+        this->m_shader = std::move(other.m_shader);
+        this->m_material = std::move(other.m_material);
+        this->m_shaderType = std::move(other.m_shaderType);
+        this->m_indexBuffer = std::move(other.m_indexBuffer);
+        this->m_vertexBuffers = std::move(other.m_vertexBuffers);
+        this->m_vertices = std::move(other.m_vertices);
+        this->m_vao = std::move(other.m_vao);
+        this->m_triangles = std::move(other.m_triangles);
+
+        other.m_indexBuffer = Buffer();
+        for (auto &buff : other.m_vertexBuffers) {
+            buff = Buffer();
+        }
+        other.m_shader = Shader();
+        other.m_vao = VertexArray();
+
+        return *this;
+    }
 
     Shader &shader() {
         return m_shader;

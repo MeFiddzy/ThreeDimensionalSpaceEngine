@@ -8,6 +8,7 @@
 
 #include "Helper.h"
 #include "Render.h"
+#include "Render3D.h"
 #include "ShapeGeneration.h"
 #include "Transform.h"
 #include "../helper/HelperVectors.h"
