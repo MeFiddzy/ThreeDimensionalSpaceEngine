@@ -40,6 +40,7 @@ add_executable(ThreeDimensionalSpaceEngine
         app/Render3D.h
         app/materials3D/IMaterial3D.cpp
         app/materials3D/IMaterial3D.h
+        app/materials3D/ColorMaterial3D.cpp
 )
 
 target_link_libraries(ThreeDimensionalSpaceEngine PRIVATE

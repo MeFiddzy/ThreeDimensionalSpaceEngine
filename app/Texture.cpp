@@ -52,7 +52,7 @@ Texture & Texture::operator=(Texture &&other) noexcept {
     return *this;
 }
 
-Texture::Texture(const std::string &path) : m_filePath(path){
+Texture::Texture(const std::string &path) : m_filePath(path) {
     stbi_set_flip_vertically_on_load(1);
     m_buffer = stbi_load(path.c_str(), &m_width, &m_height, &m_BPP, 4);
 

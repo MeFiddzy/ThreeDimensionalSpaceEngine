@@ -21,6 +21,7 @@ struct Color {
     Color(Color &&other) noexcept {
         *this = std::move(other);
     }
+
     Color &operator=(const Color &other) = default;
     Color &operator=(Color &&other) noexcept {
         if (this == &other) {

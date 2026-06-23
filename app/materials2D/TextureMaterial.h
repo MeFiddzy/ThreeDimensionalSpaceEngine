@@ -6,7 +6,7 @@
 class TextureMaterial : public IMaterial {
 public:
     TextureMaterial() = default;
-    explicit TextureMaterial(const Texture &texture, glm::mat4 &proj, UInt slot = 0);
+    explicit TextureMaterial(const Texture &texture, const glm::mat4 &proj, UInt slot = 0);
     explicit TextureMaterial(Texture &&texture, glm::mat4 &mvp, UInt slot = 0);
 
     void setProjMat(const glm::mat4 &proj);
@@ -20,6 +20,6 @@ public:
     void onDraw() override;
 private:
     UInt m_slot{};
-    glm::mat4 mvp{};
+    glm::mat4 m_mvp{};
     Texture m_texture;
 };

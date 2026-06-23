@@ -8,7 +8,7 @@
 #include "glm/gtc/quaternion.hpp"
 
 struct Vec3 {
-    Vec3();
+    Vec3() = default;
 
     Vec3(const float x, const float y, const float z) {
         this->x = x;
@@ -53,7 +53,27 @@ struct Vec3 {
     }
 
     float x, y, z;
+
+    static void loadComponents(std::vector<Buffer> &buffers, const std::vector<Vec3> &vertcies);
+    static VertexArray::BufferLayout bufferLayout;
 };
+
+inline VertexArray::BufferLayout Vec3::bufferLayout = VertexArray::BufferLayout(LO(3, GL_FLOAT, GL_FALSE));
+
+inline void Vec3::loadComponents(std::vector<Buffer> &buffers, const std::vector<Vec3> &vertcies) {
+    auto data = std::vector<float>();
+    UInt size = 0;
+
+    for (const auto &vertex : vertcies) {
+        data.emplace_back(vertex.x);
+        data.emplace_back(vertex.y);
+        data.emplace_back(vertex.z);
+
+        size += 3;
+    }
+
+    buffers[0].loadBuffer(&data[0], size);
+}
 
 struct Vec2 {
     Vec2() = default;
@@ -99,5 +119,16 @@ struct Quaternion {
 
     glm::quat toGLM() const {
         return glm::quat(w, x, y, z);
+    }
+
+    Quaternion &operator+(const Quaternion &other) const {
+        Quaternion q = Quaternion(
+            w + other.w,
+            x + other.x,
+            y + other.y,
+            z + other.z
+        );
+
+        return q;
     }
 };

@@ -6,7 +6,7 @@
 class ColorMaterial : public IMaterial {
 private:
     Color m_color;
-    glm::mat4 mvp;
+    glm::mat4 m_mvp;
 public:
     ColorMaterial(const Color &color, const glm::mat4 &mvp);
 
@@ -14,5 +14,5 @@ public:
     [[nodiscard]] glm::mat4 getMVPMat() const;
 
     void setColor(const Color &color);
-    void setMVPMat(const glm::mat4 &proj);
+    void setMVPMat(const glm::mat4 &mvp);
 };

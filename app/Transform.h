@@ -17,6 +17,7 @@ struct Transform {
         this->rotation = rotation;
     }
 
+    [[nodiscard]]
     glm::mat4 toModelMatrix() const {
         glm::mat4 mat(1.);
 
@@ -25,5 +26,10 @@ struct Transform {
         mat = glm::scale(mat, scale.toGLM());
 
         return mat;
+    }
+
+    [[nodiscard]]
+    glm::mat4 getMVP(const glm::mat4 &view, const glm::mat4 &proj) const {
+        return proj * view * toModelMatrix();
     }
 };

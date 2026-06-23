@@ -1,6 +1,6 @@
 #include "TextureMaterial.h"
 
-TextureMaterial::TextureMaterial(const Texture &texture, glm::mat4 &mvp, const UInt slot) {
+TextureMaterial::TextureMaterial(const Texture &texture, const glm::mat4 &mvp, const UInt slot) {
     m_texture = texture;
     m_slot = slot;
 
@@ -23,12 +23,12 @@ TextureMaterial::TextureMaterial(Texture &&texture, glm::mat4 &mvp, const UInt s
 }
 
 void TextureMaterial::setProjMat(const glm::mat4 &proj) {
-    mvp = proj;
+    m_mvp = proj;
     m_shader.setUniform("u_MVP", glUniformMatrix4fv, 1, GL_FALSE, &proj[0][0]);
 }
 
 glm::mat4 TextureMaterial::getProjMat() const {
-    return mvp;
+    return m_mvp;
 }
 
 Texture & TextureMaterial::getTexture() {

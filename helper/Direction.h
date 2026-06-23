@@ -2,18 +2,11 @@
 #include "HelperVectors.h"
 #include "VecSpherical.h"
 
-class Direction : VecSpherical {
+class Direction : public VecSpherical {
 public:
-    [[noreturn]]
-    float getRho() const {}
+    void setRho(float) { m_rho = 1; }
 
-    [[nodiscard]]
-    Vec3 getRectangleCoords() const {}
+    Direction() = default;
 
-    void setRho(float) {}
-
-    Direction(float theta, float phi): VecSpherical(theta, phi, 0) {
-        m_theta = theta;
-        m_phi = phi;
-    }
+    Direction(const float theta, const float phi): VecSpherical(theta, phi, 1) {}
 };

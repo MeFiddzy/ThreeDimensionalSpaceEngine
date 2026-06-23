@@ -8,9 +8,12 @@
 #include "Texture.h"
 #include "glm/glm.hpp"
 #include "VertexArray.h"
+#include "../helper/Direction.h"
 
 struct TexturedShape;
 struct GLFWwindow;
+
+using Render3DType = Vec3;
 
 class App {
 public:
@@ -24,21 +27,27 @@ public:
 
     [[nodiscard]] double getDeltaTIme() const { return m_deltaTime; }
 private:
-    static int s_width;
-    static int s_height;
-
     void handleDT();
+    void updateMVP();
+
+    int m_width;
+    int m_height;
+
+    float m_fovDeg;
+    float m_nearPlane;
+    float m_farPlane;
+
+    Vec3 m_cameraPos;
+    Direction m_cameraDir{};
 
     GLFWwindow* m_window;
 
     Texture m_texture;
 
-    Renderer<TexturedShape> m_renderer;
+    Renderer<Render3DType> m_renderer3D;
 
-    glm::mat4 m_proj;
-    glm::mat4 m_view;
-
-    glm::mat4 m_mvp;
+    glm::mat4 m_projMat;
+    glm::mat4 m_viewMat;
 
     double m_lastTime{};
     double m_deltaTime{};

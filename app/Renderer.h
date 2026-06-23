@@ -5,18 +5,23 @@
 template<typename T>
 class Renderer {
 public:
-    void addRender(const Render<T> *render) {
+    void addRender(Render<T> *render) {
         m_renders.emplace_back(render);
     }
 
     [[nodiscard]]
     Render<T> *getRender(const UInt index) {
-        return const_cast<Render<T> *>(m_renders[index]);
+        return m_renders[index];
+    }
+
+    [[nodiscard]]
+    auto getRenders() {
+        return m_renders;
     }
 
     [[nodiscard("Pointer will escape the class. Delete it or use save it to prevent a memory leak!")]]
     Render<T> *removeRender(const UInt index) {
-        Render<T> *ptr = const_cast<Render<T> *>(m_renders[index]);
+        Render<T> *ptr = (m_renders[index]);
 
         m_renders[index] = nullptr;
         m_renders.erase(m_renders.begin() + index);
@@ -39,5 +44,5 @@ public:
 
    }
 private:
-    std::vector<const Render<T>*> m_renders;
+    std::vector<Render<T>*> m_renders;
 };

@@ -1,7 +1,7 @@
 #include "ColorMaterial.h"
 
 ColorMaterial::ColorMaterial(const Color &color, const glm::mat4 &mvp) :
-    m_color(color), mvp(mvp) {
+    m_color(color), m_mvp(mvp) {
 
     m_shader = Shader("2D/color_shader.glsl");
 
@@ -17,7 +17,7 @@ Color ColorMaterial::getColor() const {
 }
 
 glm::mat4 ColorMaterial::getMVPMat() const {
-    return mvp;
+    return m_mvp;
 }
 
 void ColorMaterial::setColor(const Color &color) {
@@ -25,7 +25,7 @@ void ColorMaterial::setColor(const Color &color) {
     m_shader.setUniform("u_color", glUniform4f, color.r, color.g, color.b, color.a);
 }
 
-void ColorMaterial::setMVPMat(const glm::mat4 &proj) {
-    mvp = proj;
-    m_shader.setUniform("u_MVP", glUniformMatrix4fv, 1, GL_FALSE, &proj[0][0]);
+void ColorMaterial::setMVPMat(const glm::mat4 &mvp) {
+    m_mvp = mvp;
+    m_shader.setUniform("u_MVP", glUniformMatrix4fv, 1, GL_FALSE, &mvp[0][0]);
 }

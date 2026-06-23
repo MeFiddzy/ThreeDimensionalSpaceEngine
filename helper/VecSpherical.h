@@ -19,4 +19,6 @@ public:
     VecSpherical(float theta, float phi, float rho);
 
     VecSpherical(Vec3 v);
+
+    VecSpherical() = default;
 };
