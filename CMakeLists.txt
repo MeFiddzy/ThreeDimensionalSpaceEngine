@@ -31,11 +31,15 @@ add_executable(ThreeDimensionalSpaceEngine
         app/TexturedShape.h
         app/IMaterial.h
         app/Color.h
-        app/materials/ColorMaterial.cpp
-        app/materials/ColorMaterial.h
-        app/materials/TextureMaterial.cpp
-        app/materials/TextureMaterial.h
+        app/materials2D/ColorMaterial.cpp
+        app/materials2D/ColorMaterial.h
+        app/materials2D/TextureMaterial.cpp
+        app/materials2D/TextureMaterial.h
         app/ShapeGeneration.h
+        app/Transform.h
+        app/Render3D.h
+        app/materials3D/IMaterial3D.cpp
+        app/materials3D/IMaterial3D.h
 )
 
 target_link_libraries(ThreeDimensionalSpaceEngine PRIVATE

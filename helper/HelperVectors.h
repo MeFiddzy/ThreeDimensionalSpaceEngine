@@ -4,7 +4,8 @@
 
 #include "../app/Helper.h"
 #include "../app/VertexArray.h"
-#include "../app/VertexArray.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 struct Vec3 {
     Vec3();
@@ -46,6 +47,11 @@ struct Vec3 {
 
         return *this;
     }
+
+    glm::vec3 toGLM() const {
+        return glm::vec3(x, y, z);
+    }
+
     float x, y, z;
 };
 
@@ -87,3 +93,11 @@ inline void Vec2::loadComponents(std::vector<Buffer> &buffers, const std::vector
 
     buffers[0].loadBuffer(&data[0], size);
 }
+
+struct Quaternion {
+    float w, x, y, z;
+
+    glm::quat toGLM() const {
+        return glm::quat(w, x, y, z);
+    }
+};

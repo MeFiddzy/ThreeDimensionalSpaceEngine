@@ -4,7 +4,7 @@
 
 class ShapeGeneration {
 public:
-    static Render<TexturedShape> *connectPoints(const std::vector<Vec2> &points) {
+    static Render<TexturedShape> *connectPoints2D(const std::vector<Vec2> &points) {
         auto *render = new Render<TexturedShape>;
 
         for (UInt i = 1; i < points.size() - 1; i++) {

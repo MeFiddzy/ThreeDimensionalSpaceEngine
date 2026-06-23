@@ -9,11 +9,12 @@
 #include "Helper.h"
 #include "Render.h"
 #include "ShapeGeneration.h"
+#include "Transform.h"
 #include "../helper/HelperVectors.h"
 
 #include "glm/gtc/matrix_transform.hpp"
-#include "materials/ColorMaterial.h"
-#include "materials/TextureMaterial.h"
+#include "materials2D/ColorMaterial.h"
+#include "materials2D/TextureMaterial.h"
 
 App::App(const int width, const int height) {
     s_width = width;
@@ -34,7 +35,7 @@ App::App(const int width, const int height) {
     glfwMakeContextCurrent(m_window);
     glfwSwapInterval(1);
 
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))  {
         glfwDestroyWindow(m_window);
         glfwTerminate();
         m_window = nullptr;
@@ -42,24 +43,32 @@ App::App(const int width, const int height) {
     }
 
     m_proj = glm::ortho<float>(0, width, height, 0, -1.f, 1.f);
+    m_view = glm::translate(glm::mat4(1.f), glm::vec3(400, 0., 0.));
 
-    auto *render1 = ShapeGeneration::connectPoints({
+    m_mvp = m_proj * m_view;
+
+    auto *render1 = ShapeGeneration::connectPoints2D({
         Vec2(300,300),
         Vec2(500,300),
         Vec2(500,500),
         Vec2(300,500),
     });
-    render1->setShaderType(ShaderType::MATERIAL);
-    render1->addMaterial(new ColorMaterial(Color(1.f, 0.f, 0.f, .5f), m_proj));
 
-    auto *render2 = ShapeGeneration::connectPoints({
+    render1->setShaderType(ShaderType::MATERIAL);
+    render1->addMaterial(new ColorMaterial(Color(1.f, 0.f, 0.f, .5f), m_mvp * Transform(
+        Vec3{0., 0., 0.},
+        Vec3{1., 1., 1.},
+        Quaternion{1., .0, 0.0, 0.}
+    ).toModelMatrix()));
+
+    auto *render2 = ShapeGeneration::connectPoints2D({
         Vec2(100, 100),
         Vec2(200, 100),
         Vec2(400, 500),
         Vec2(100, 200)
     });
     render2->setShaderType(ShaderType::MATERIAL);
-    render2->addMaterial(new ColorMaterial(Color(0.f, 0.f, 1.f, .5f), m_proj));
+    render2->addMaterial(new ColorMaterial(Color(0.f, 0.f, 1.f, .5f), m_mvp));
 
     glCall(glEnable(GL_BLEND));
     glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
@@ -71,6 +80,8 @@ App::App(const int width, const int height) {
 
 void App::loop() {
     while (!glfwWindowShouldClose(m_window)) {
+        glCall(glClear(GL_COLOR_BUFFER_BIT));
+
         m_renderer.render(m_window);
 
         handleDT();

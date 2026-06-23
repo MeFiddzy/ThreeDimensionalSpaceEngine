@@ -61,7 +61,12 @@ public:
         m_vertices.emplace_back(vertex);
     }
 
+    template<typename R>
     [[nodiscard]]
+    R *getMaterial() const {
+        return static_cast<R *>(m_material);
+    }
+
     IMaterial *getMaterial() const {
         return m_material;
     }

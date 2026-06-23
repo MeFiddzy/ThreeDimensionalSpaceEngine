@@ -11,7 +11,7 @@ public:
 
     [[nodiscard]]
     Render<T> *getRender(const UInt index) {
-        return m_renders[index];
+        return const_cast<Render<T> *>(m_renders[index]);
     }
 
     [[nodiscard("Pointer will escape the class. Delete it or use save it to prevent a memory leak!")]]
@@ -25,8 +25,6 @@ public:
     }
 
     void render(GLFWwindow* window) {
-        glCall(glClear(GL_COLOR_BUFFER_BIT));
-
         for (const Render<T> *render : m_renders) {
             if (render->getShaderType() == ShaderType::MATERIAL) {
                 render->getMaterial()->onDraw();

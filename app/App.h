@@ -36,6 +36,9 @@ private:
     Renderer<TexturedShape> m_renderer;
 
     glm::mat4 m_proj;
+    glm::mat4 m_view;
+
+    glm::mat4 m_mvp;
 
     double m_lastTime{};
     double m_deltaTime{};

@@ -69,6 +69,7 @@ public:
 
     template<typename... Args, typename FuncT>
     void setUniform(const std::string &name, FuncT func, Args... args...) {
+        use();
         glCall(func(m_uniforms[name], args...))
     }
 
