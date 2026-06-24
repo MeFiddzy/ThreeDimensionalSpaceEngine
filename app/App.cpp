@@ -25,8 +25,8 @@ App::App(const int width, const int height) {
     m_nearPlane = .1;
     m_farPlane = 1000.;
 
-    m_cameraDir = Direction(glm::radians(40.), glm::radians(0.));
-    m_cameraPos = Vec3(0, 0, 0);
+    m_cameraDir = Direction(glm::radians(0.), glm::radians(0.));
+    m_cameraPos = Vec3(0, 0, -2);
 
     m_width = width;
     m_height = height;
@@ -61,45 +61,11 @@ App::App(const int width, const int height) {
         glm::vec3(0, 1, 0)
     );
 
-    auto render = new Render3D<Render3DType>(Render<Render3DType>(), Transform(
-        Vec3(0., 0., 1.),
-        Vec3(.6, .6, .6),
-        Quaternion(1., 0., 0., 0.)
-    ));
-
-    render->addMaterial(new ColorMaterial3D(Color(1.f, 0.f, 0.f, 1.f), render->getTransform().getMVP(m_viewMat, m_projMat)));
-
+    auto render = ShapeGeneration::loadFromOBJ("resources/3d_models/example.obj");
     render->setShaderType(ShaderType::MATERIAL);
+    render->addMaterial(new ColorMaterial3D(Color(.8f, .8f, .8f, 1.f), render->getTransform().getMVP(m_viewMat, m_projMat)));
 
-    render->addVertex(Vec3(-0.5, -0.5, -0.5)); // 0
-    render->addVertex(Vec3( 0.5, -0.5, -0.5)); // 1
-    render->addVertex(Vec3( 0.5,  0.5, -0.5)); // 2
-    render->addVertex(Vec3(-0.5,  0.5, -0.5)); // 3
-    render->addVertex(Vec3(-0.5, -0.5,  0.5)); // 4
-    render->addVertex(Vec3( 0.5, -0.5,  0.5)); // 5
-    render->addVertex(Vec3( 0.5,  0.5,  0.5)); // 6
-    render->addVertex(Vec3(-0.5,  0.5,  0.5)); // 7
-
-
-    render->addTriangle(Triangle<UInt>(0, 1, 2));
-    render->addTriangle(Triangle<UInt>(0, 2, 3));
-
-    render->addTriangle(Triangle<UInt>(4, 6, 5));
-    render->addTriangle(Triangle<UInt>(4, 7, 6));
-
-    render->addTriangle(Triangle<UInt>(0, 3, 7));
-    render->addTriangle(Triangle<UInt>(0, 7, 4));
-
-    render->addTriangle(Triangle<UInt>(1, 5, 6));
-    render->addTriangle(Triangle<UInt>(1, 6, 2));
-
-    render->addTriangle(Triangle<UInt>(0, 4, 5));
-    render->addTriangle(Triangle<UInt>(0, 5, 1));
-
-    render->addTriangle(Triangle<UInt>(3, 2, 6));
-    render->addTriangle(Triangle<UInt>(3, 6, 7));
-
-    render->genBuffers(GL_STATIC_DRAW);
+    render->getTransform().scale = {.2f, .2f, .2f};
 
     glCall(glEnable(GL_DEPTH_TEST));
 
@@ -109,14 +75,14 @@ App::App(const int width, const int height) {
     m_renderer3D.addRender(render);
 }
 
+constexpr float g_flyingSpeed = .006f;
+constexpr float g_rotatingSpeed = .006f;
+
 
 void App::loop() {
     while (!glfwWindowShouldClose(m_window)) {
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-        if (glfwGetKey(m_window, GLFW_KEY_UP)) {
-            m_cameraDir.setPhi(m_cameraDir.getPhi() + .0001f);
-        }
+        handleMovment();
 
         m_projMat = glm::perspective(glm::radians(m_fovDeg), static_cast<float>(m_width) / static_cast<float>(m_height),
             m_nearPlane, m_farPlane);
@@ -125,13 +91,6 @@ void App::loop() {
             m_cameraPos.toGLM() + m_cameraDir.getRectangleCoords().toGLM(),
             glm::vec3(0, 1, 0)
         );
-
-        auto u = static_cast<Render3D<Render3DType>*>(m_renderer3D.getRender(0));
-        u->setTransform(Transform{
-            u->getTransform().pos,
-            u->getTransform().scale,
-            u->getTransform().rotation + Quaternion(0., 0., 0., 0.),
-        });
 
         updateMVP();
 
@@ -157,5 +116,46 @@ void App::updateMVP() {
         const auto render3D = static_cast<Render3D<Render3DType>*>(render);
 
         material3D->setMVP(render3D->getTransform().getMVP(m_viewMat, m_projMat));
+        material3D->setModel(render3D->getTransform().toModelMatrix());
     }
+}
+
+void App::handleMovment() {
+    if (glfwGetKey(m_window, GLFW_KEY_S)) {
+        m_cameraPos.z -= g_flyingSpeed;
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_W)) {
+        m_cameraPos.z += g_flyingSpeed;
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL)) {
+        m_cameraPos.y -= g_flyingSpeed;
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_SPACE)) {
+        m_cameraPos.y += g_flyingSpeed;
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_D)) {
+        m_cameraPos.x -= g_flyingSpeed;
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_A)) {
+        m_cameraPos.x += g_flyingSpeed;
+    }
+
+    auto render = static_cast<Render3D<Render3DType>*>(m_renderer3D.getRender(0));
+    if (glfwGetKey(m_window, GLFW_KEY_LEFT)) {
+        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), -g_rotatingSpeed, 0.f);
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_RIGHT)) {
+        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), g_rotatingSpeed, 0.f);
+    }
+
+    if (glfwGetKey(m_window, GLFW_KEY_UP)) {
+        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), 0.f, -g_rotatingSpeed);
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_DOWN)) {
+        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), 0.f, g_rotatingSpeed);
+    }
+}
+
+glm::quat App::rotate(const glm::quat &q, const float theta, const float phi) {
+    return glm::quat(cos(theta / 2), 0, sin(theta / 2), 0) * glm::quat(cos(phi / 2), sin(phi / 2), 0, 0) * q;
 }

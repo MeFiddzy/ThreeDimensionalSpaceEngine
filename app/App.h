@@ -29,6 +29,8 @@ public:
 private:
     void handleDT();
     void updateMVP();
+    void handleMovment();
+    glm::quat rotate(const glm::quat &q, float theta, float phi);
 
     int m_width;
     int m_height;

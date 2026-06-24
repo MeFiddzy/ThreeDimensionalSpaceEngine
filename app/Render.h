@@ -111,6 +111,10 @@ public:
         }
     }
 
+    auto &getVertices() {
+        return m_vertices;
+    }
+
     void genVertexArray(const GLenum usage) {
         m_vao = VertexArray(true);
 

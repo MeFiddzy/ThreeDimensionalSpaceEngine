@@ -117,6 +117,20 @@ inline void Vec2::loadComponents(std::vector<Buffer> &buffers, const std::vector
 struct Quaternion {
     float w, x, y, z;
 
+    Quaternion(const glm::quat &q) {
+        w = q.w;
+        x = q.x;
+        y = q.y;
+        z = q.z;
+    }
+
+    Quaternion(float w, float x, float y, float z) {
+        this->w = w;
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
     glm::quat toGLM() const {
         return glm::quat(w, x, y, z);
     }

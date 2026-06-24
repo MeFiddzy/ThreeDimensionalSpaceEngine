@@ -4,7 +4,7 @@
 #include "app/App.h"
 
 int main() {
-    auto *app = new App(1600, 800);
+    auto app = new App(1600, 800);
 
     if (app->getWindow() == nullptr) {
         return -1;

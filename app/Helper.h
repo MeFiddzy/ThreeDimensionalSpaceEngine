@@ -15,6 +15,14 @@ inline void clearErrors(const char *function = nullptr, const char *file = nullp
 template<typename T>
 struct Triangle {
     T v1, v2, v3;
+
+    Triangle(T v1, T v2, T v3) {
+        this->v1 = v1;
+        this->v2 = v2;
+        this->v3 = v3;
+    }
+
+    Triangle() = default;
 };
 
 using UInt = unsigned int;
