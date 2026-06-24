@@ -2,6 +2,7 @@
 #include <string>
 
 #include "Buffer.h"
+#include "Color.h"
 #include "Render.h"
 #include "Renderer.h"
 #include "ShaderMethods.h"
@@ -29,7 +30,16 @@ public:
 private:
     void handleDT();
     void updateMVP();
-    void handleMovment();
+    void handleMovement();
+    void handleLightSourceChange();
+    void handleResets();
+
+    float modC(float x, float n);
+
+    void handleSphericalRotations();
+
+    Color inputColors();
+
     glm::quat rotate(const glm::quat &q, float theta, float phi);
 
     int m_width;
@@ -42,11 +52,14 @@ private:
     Vec3 m_cameraPos;
     Direction m_cameraDir{};
 
+    Vec3 m_cameraOffest{};
+
     GLFWwindow* m_window;
 
     Texture m_texture;
 
     Renderer<Render3DType> m_renderer3D;
+    Renderer<TexturedShape> m_renderer2D;
 
     glm::mat4 m_projMat;
     glm::mat4 m_viewMat;

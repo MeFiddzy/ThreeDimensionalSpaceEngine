@@ -15,4 +15,6 @@ public:
     [[nodiscard]] Color getColor() const;
 
     void setColor(const Color &color);
+
+    void setLightDir(const Vec3 &dir);
 };

@@ -25,3 +25,8 @@ void ColorMaterial3D::setColor(const Color &color) {
     m_color = color;
     m_shader.setUniform("u_color", glUniform4f, color.r, color.g, color.b, color.a);
 }
+
+void ColorMaterial3D::setLightDir(const Vec3 &dir) {
+    m_lightDir = dir;
+    m_shader.setUniform("u_lightDir", glUniform3f, dir.x, dir.y, dir.z);
+}

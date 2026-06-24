@@ -40,12 +40,8 @@ struct Vec3 {
         return *this;
     }
 
-    Vec3 &operator*(const float other) {
-        this->x *= other;
-        this->y *= other;
-        this->z *= other;
-
-        return *this;
+    Vec3 operator*(const float other) const {
+        return Vec3(x * other, y * other, z * other);
     }
 
     glm::vec3 toGLM() const {

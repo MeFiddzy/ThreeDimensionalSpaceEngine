@@ -20,13 +20,16 @@
 #include "materials3D/ColorMaterial3D.h"
 #include "materials3D/IMaterial3D.h"
 
+const auto g_startingPos = Vec3(0, 0, -2);
+
+
 App::App(const int width, const int height) {
     m_fovDeg = 50;
     m_nearPlane = .1;
     m_farPlane = 1000.;
 
-    m_cameraDir = Direction(glm::radians(0.), glm::radians(0.));
-    m_cameraPos = Vec3(0, 0, -2);
+    m_cameraDir = Direction(0, 0);
+    m_cameraPos = g_startingPos;
 
     m_width = width;
     m_height = height;
@@ -61,28 +64,31 @@ App::App(const int width, const int height) {
         glm::vec3(0, 1, 0)
     );
 
-    auto render = ShapeGeneration::loadFromOBJ("resources/3d_models/example.obj");
+    auto render = ShapeGeneration::loadFromOBJ("model.obj");
     render->setShaderType(ShaderType::MATERIAL);
-    render->addMaterial(new ColorMaterial3D(Color(.8f, .8f, .8f, 1.f), render->getTransform().getMVP(m_viewMat, m_projMat)));
+    render->addMaterial(new ColorMaterial3D(inputColors(), render->getTransform().getMVP(m_viewMat, m_projMat)));
 
     render->getTransform().scale = {.2f, .2f, .2f};
+
+    m_renderer3D.addRender(render);
 
     glCall(glEnable(GL_DEPTH_TEST));
 
     glCall(glEnable(GL_BLEND));
     glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
-
-    m_renderer3D.addRender(render);
 }
 
 constexpr float g_flyingSpeed = .006f;
 constexpr float g_rotatingSpeed = .006f;
 
-
 void App::loop() {
     while (!glfwWindowShouldClose(m_window)) {
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        handleMovment();
+
+        handleMovement();
+        handleLightSourceChange();
+        handleSphericalRotations();
+        handleResets();
 
         m_projMat = glm::perspective(glm::radians(m_fovDeg), static_cast<float>(m_width) / static_cast<float>(m_height),
             m_nearPlane, m_farPlane);
@@ -93,6 +99,8 @@ void App::loop() {
         );
 
         updateMVP();
+
+        m_cameraPos = VecSpherical(m_cameraDir.getTheta(), m_cameraDir.getPhi(), g_startingPos.z).getRectangleCoords() + m_cameraOffest;
 
         m_renderer3D.render(m_window);
 
@@ -120,40 +128,93 @@ void App::updateMVP() {
     }
 }
 
-void App::handleMovment() {
+void App::handleMovement() {
     if (glfwGetKey(m_window, GLFW_KEY_S)) {
-        m_cameraPos.z -= g_flyingSpeed;
+        m_cameraOffest.z -= g_flyingSpeed;
     }
     if (glfwGetKey(m_window, GLFW_KEY_W)) {
-        m_cameraPos.z += g_flyingSpeed;
+        m_cameraOffest.z += g_flyingSpeed;
     }
     if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL)) {
-        m_cameraPos.y -= g_flyingSpeed;
+        m_cameraOffest.y -= g_flyingSpeed;
     }
     if (glfwGetKey(m_window, GLFW_KEY_SPACE)) {
-        m_cameraPos.y += g_flyingSpeed;
+        m_cameraOffest.y += g_flyingSpeed;
     }
     if (glfwGetKey(m_window, GLFW_KEY_D)) {
-        m_cameraPos.x -= g_flyingSpeed;
+        m_cameraOffest.x -= g_flyingSpeed;
     }
     if (glfwGetKey(m_window, GLFW_KEY_A)) {
-        m_cameraPos.x += g_flyingSpeed;
+        m_cameraOffest.x += g_flyingSpeed;
     }
+}
 
-    auto render = static_cast<Render3D<Render3DType>*>(m_renderer3D.getRender(0));
-    if (glfwGetKey(m_window, GLFW_KEY_LEFT)) {
-        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), -g_rotatingSpeed, 0.f);
-    }
-    if (glfwGetKey(m_window, GLFW_KEY_RIGHT)) {
-        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), g_rotatingSpeed, 0.f);
-    }
+void App::handleLightSourceChange() {
+    if (glfwGetKey(m_window, GLFW_KEY_L)) {
+        auto render = static_cast<Render3D<Render3DType>*>(m_renderer3D.getRender(0));
 
+        static_cast<ColorMaterial3D*>(render->getMaterial())->setLightDir(m_cameraPos * .1f);
+    }
+}
+
+void App::handleResets() {
+    if (glfwGetKey(m_window, GLFW_KEY_R)) {
+        if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT)) {
+            m_cameraPos = Vec3(0, 0, 0);
+            m_cameraDir = Direction(0, 0);
+        }
+
+        m_cameraOffest = Vec3(0, 0, 0);
+    }
+}
+
+float App::modC(float x, float n) {
+    while (x >= n) {
+        x -= n;
+    }
+    return x;
+}
+
+void App::handleSphericalRotations() {
     if (glfwGetKey(m_window, GLFW_KEY_UP)) {
-        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), 0.f, -g_rotatingSpeed);
+        m_cameraDir.setPhi(-modC(-(m_cameraDir.getPhi() - g_rotatingSpeed), glm::radians(90.)));
+        std::cout << m_cameraDir.getPhi() << '\n';
     }
     if (glfwGetKey(m_window, GLFW_KEY_DOWN)) {
-        render->getTransform().rotation = rotate(render->getTransform().rotation.toGLM(), 0.f, g_rotatingSpeed);
+        m_cameraDir.setPhi(m_cameraDir.getPhi() + g_rotatingSpeed);
     }
+
+    if (glfwGetKey(m_window, GLFW_KEY_LEFT)) {
+        m_cameraDir.setTheta(m_cameraDir.getTheta() + g_rotatingSpeed);
+    }
+    if (glfwGetKey(m_window, GLFW_KEY_RIGHT)) {
+        m_cameraDir.setTheta(m_cameraDir.getTheta() - g_rotatingSpeed);
+    }
+}
+
+Color App::inputColors() {
+    UInt r, g, b, a;
+
+    std::ifstream stream("color.txt");
+    auto clearLine = [&]() {
+        char c;
+        while (stream.get(c)) {
+            if (c == '\n') {
+                break;
+            }
+        }
+    };
+
+    stream >> r;
+    clearLine();
+    stream >> g;
+    clearLine();
+    stream >> b;
+    clearLine();
+    stream >> a;
+    clearLine();
+
+    return Color(r, g, b, a);
 }
 
 glm::quat App::rotate(const glm::quat &q, const float theta, const float phi) {
