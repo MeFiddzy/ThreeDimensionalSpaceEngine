@@ -1,5 +1,5 @@
 # ThreeDimensionalSpaceEngine
-A small rendering engine built using [OpenGL](https://www.opengl.org/) via [GLFW](https://www.glfw.org/) and [GLM](https://github.com/g-truc/glm).
+A small rendering engine for 3D and 2D built using [OpenGL](https://www.opengl.org/) via [GLFW](https://www.glfw.org/) and [GLM](https://github.com/g-truc/glm).
 ## Abstracted Features
 - `Buffer`s using any primitive types
 - `VertexArray`s, containing `VertexArray::BufferLayout`, which contain `VertexArray::BufferLayout::LayoutObject`, used in creating a vao, to send data to the shader
@@ -26,3 +26,5 @@ A small rendering engine built using [OpenGL](https://www.opengl.org/) via [GLFW
 cmake -B build
 cmake --build build
 ```
+## AI Use
+AI was use purely in documenting and not a single line of code was writted using it.
