@@ -27,4 +27,4 @@ cmake -B build
 cmake --build build
 ```
 ## AI Use
-AI was use purely in documenting and not a single line of code was writted using it.
+AI was use purely in research (library documentations) and not a single line of code was writted using it.
